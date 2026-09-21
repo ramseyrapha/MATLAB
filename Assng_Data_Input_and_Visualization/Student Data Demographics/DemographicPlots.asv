@@ -1,0 +1,143 @@
+% QTN1_Group12.m - Student Demographics & Social Data Visualization
+
+clear; clc; close all;
+
+% 1. Define table to pick all basic details of WAR students
+
+excelFile = 'STUDENT_DATA.xlsx'; 
+
+% SAFETY RESTRICTION - CHECK IF FILE ALREADY EXISTS
+if exist(excelFile, 'file') == 2
+    % File exists! Do not overwrite it.
+    fprintf('Notice: "%s" already exists. Skipping starter creation to protect your data.\n\n', excelFile);
+else
+    % File is missing! Create a new template with your 10 entries.
+    fprintf('Creating fresh template sheet: "%s"...\n', excelFile);
+    
+    S_N         = (1:10)';
+    FirstName   = {'DEBORAH'; 'MERCY LEAN'; 'PRETTY'; 'ERASMUS WANDERA'; 'JONAH'; 'SOLOMON JAMES'; 'ELVIS'; 'GIFT OLIVER'; 'LAWYERS'; 'JONATHAN'};
+    LastName    = {'AKITENG'; 'AKWIR AUMA'; 'AUMA'; 'ELEPOT'; 'OPUS'; 'KINOBE'; 'BWIRE'; 'ACHENG'; 'OKOU'; 'OLINGA'};
+    REG_NO      = {'BU/UP/2025/1531'; 'BU/UP/2025/1532'; 'BU/UP/2025/2109'; 'BU/UP/2025/2113'; 'BU/UP/2025/2142'; 'BU/UP/2025/3265'; 'BU/UP/2025/2110'; 'BU/UP/2025/5144'; 'BU/UP/2025/1560'; 'BU/UP/2025/1562'};
+    AGE         = [43; 26; 32; 23; 23; 24; 25; 21; 22; 21];
+    SEX         = {'F'; 'F'; 'F'; 'M'; 'M'; 'M'; 'F'; 'F'; 'M'; 'M'};
+    STATUS      = {'MARRIED'; 'SINGLE'; 'MARRIED'; 'SINGLE'; 'SINGLE'; 'SINGLE'; 'MARRIED'; 'SINGLE'; 'SINGLE'; 'SINGLE'};
+    TRIBE       = {'TESO'; 'LANGI'; 'LANGI'; 'TESO'; 'TESO'; 'BAGANDA'; 'BASOGA'; 'TESO'; 'LANGI'; 'TESO'};
+    ASSOCIATION = {'TESDA'; 'NUSA'; 'NUSA'; 'TESDA'; 'TESDA'; 'NKOBAZAMBOGO'; 'BANSA'; 'TESDA'; 'NUSA'; 'TESDA'};
+    HALL        = {'NJUKI'; 'NJUKI'; 'JAMAICA'; 'AC'; 'JAMAICA'; 'KINGS&QUEENS'; 'KINGS&QUEENS'; 'KINGS&QUEENS'; 'OBURU'; 'LOGIN'};
+    FRIEND      = {'Raphael'; 'Allan'; 'Raphael'; 'Deborah'; 'Allan'; 'Allan'; 'Raphael'; 'Deborah'; 'Florence'; 'Herbert'};
+
+    STUDENTDATA = table(S_N, FirstName, LastName, REG_NO, AGE, SEX, STATUS, TRIBE, ASSOCIATION, HALL, FRIEND);
+    writetable(STUDENTDATA, excelFile);
+    fprintf('Success: Starter template file created.\n\n');
+end
+
+
+% LOAD REVISED DATA AND PREPARE VARIABLES
+fprintf('Importing updated Excel data back into MATLAB...\n');
+studentData = readtable(excelfile);
+
+% Assign columns from table to individual variables
+SN          = studentData.S_N;
+Age         = studentData.AGE;
+Sex         = categorical(studentData.SEX);
+Status      = categorical(studentData.STATUS);
+Association = categorical(studentData.ASSOCIATION);
+Hall        = categorical(studentData.HALL);
+Friend      = categorical(studentData.FRIEND);
+
+% Get frequency counts for data categories
+[assocCounts, assocCats] = groupcounts(Association);
+[hallCounts, hallCats]   = groupcounts(Hall);
+[statusCounts, statusCats] = groupcounts(Status);
+fprintf('Data successfully converted and categorized for visualization.\n\n');
+
+
+% GENERATE AND SAVE PLOTS
+fprintf('Starting Step 3: Generating demographic graphs...\n');
+
+% Plot 1: Vertical Bar Chart for Association
+f1 = figure('Name', 'Association_Distribution');
+bar(assocCats, assocCounts);
+title('Student Distribution by Association');
+xlabel('Student Association'); ylabel('Number of Students');
+grid on;
+saveas(f1, 'Association_Bar.png');
+
+% Plot 2: Horizontal Bar Chart for Residence
+f2 = figure('Name', 'Residence_Distribution');
+barh(hallCats, hallCounts);
+title('Student Distribution by Residence Hall');
+xlabel('Number of Students'); ylabel('Residence Hall');
+grid on;
+saveas(f2, 'Residence_BarH.png');
+
+% Plot 3: Simple Pie Chart for Marital Status
+f3 = figure('Name', 'Marital_Status_Pie');
+pie(statusCounts, statusCats);
+title('Proportion of Students by Marital Status');
+saveas(f3, 'Status_Pie.png');
+
+% Plot 4: Pareto Chart for Associations
+f4 = figure('Name', 'Association_Pareto');
+pareto(assocCounts, assocCats);
+title('Pareto Analysis of Student Associations');
+ylabel('Count / Cumulative Percentage');
+grid on;
+saveas(f4, 'Pareto_Distribution.png');
+
+% Plot 5: Histogram for Age Distribution
+f5 = figure('Name', 'Age_Histogram');
+histogram(Age);
+title('Student Age Distribution');
+xlabel('Age (Years)'); ylabel('Frequency');
+grid on;
+saveas(f5, 'Age_Histogram.png');
+
+% Plot 6: Standard Line Plot for Age
+f6 = figure('Name', 'Line Plot');
+plot(Age);
+title('Line Plot of Age');
+xlabel('Student Index'); ylabel('Age');
+grid on;
+saveas(f6, 'Line_Plot.png');
+
+% Plot 7: Error Bar Plot for Age Variance by Gender
+f7 = figure('Name', 'Error Bar Plot');
+maleAges = Age(Sex == "M");
+femaleAges = Age(Sex == "F");
+meanAges = [mean(maleAges), mean(femaleAges)];
+stdAges  = [std(maleAges),  std(femaleAges)];
+errorbar([1, 2], meanAges, stdAges);
+set(gca, 'XTick', [1, 2], 'XTickLabel', {'Male', 'Female'});
+title('Age Variance by Gender');
+xlabel('Gender'); ylabel('Age');
+grid on;
+saveas(f7, 'Error_Plot.png');
+
+% Plot 8: Standard Box Plot for Age
+f8 = figure('Name', 'Box Plot');
+boxplot(Age);
+title('Box Plot of Age Distribution');
+grid on;
+saveas(f8, 'Box_Plot.png');
+
+% Plot 9: Logarithmic Scale Plot for Age
+f9 = figure('Name', 'Logarithmic Plot');
+semilogy(SN, Age);
+title('Semilogy Plot of Age');
+xlabel('Student Index (S_N)'); ylabel('Age (Log Scale)');
+grid on;
+saveas(f9, 'Logarithmic_Plot.png');
+
+% Plot 10: Percentage Pie Chart for Marital Status
+f10 = figure('Name', 'Pie Chart Labels');
+pie(statusCounts, statusCats);
+title('Pie Chart with Percent Labels');
+saveas(f10, 'Pie_Chart_with_Percent_Labels.png');
+
+% EXPORT TO FINAL GROUP ASSIGNMENT FILE
+outputTable = 'Group12.xlsx'; 
+writetable(studentData, outputTable);
+
+fprintf('Success: All 10 plots have been saved as PNG image files.\n');
+fprintf('Success: Final assignment data exported to "%s".\n', outputTable);

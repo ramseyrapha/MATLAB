@@ -96,7 +96,8 @@ saveas(f4, 'Course_Means_Errorbar.png');
 
 % --- Plot 5: Standard Bar Chart ---
 f5 = figure('Name', 'Mean Mark');
-bar(categorical(courseNames),allMeans);
+bar(allMeans);
+set(gca, 'XTick', 1:11, 'XTickLabel', courseNames);
 xtickangle(45);
 title('Average Mark Per Course');
 xlabel('Course Number');
@@ -132,4 +133,3 @@ function gp = convertMarksToGP(marks)
         end
     end
 end
-
