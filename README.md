@@ -1,2 +1,5 @@
-To view the plots, copy the files and run the code using Matlab
-Assng_2/Question_1/Performance_Analysis_Plots.m
+#Welcome to my repository
+#StudentName = OLUPOT RAPHAEL
+#Reg_No = BU/UP/2025/2139
+#Prog = WAR 2 BUSITEMA UNIVERSITY
+#Full Matlab Course Assignments Uploaded here
