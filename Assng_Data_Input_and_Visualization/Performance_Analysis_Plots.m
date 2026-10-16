@@ -12,18 +12,19 @@ totalCU_Y1S1 = sum(cu_Y1S1);           % 19 CU
 totalCU_Y1S2 = sum(cu_Y1S2);             % 21 CU
 totalCumulativeCU = totalCU_Y1S1 + totalCU_Y1S2; % 40 CU(Year 1)
 
-% 3. EXTRACT MARKS MATRICES FROM TABLE
+% EXTRACT MARKS MATRICES FROM TABLE
 marks_Sem1 = [studentData.Y1S1_C1, studentData.Y1S1_C2, studentData.Y1S1_C3, ...
               studentData.Y1S1_C4, studentData.Y1S1_C5];
 
 marks_Sem2 = [studentData.Y1S2_C1, studentData.Y1S2_C2, studentData.Y1S2_C3, ...
               studentData.Y1S2_C4, studentData.Y1S2_C5, studentData.Y1S2_C6];
 
-% 4. COMPUTE GPA AND YEAR 1 CGPA
+% COMPUTE GPA AND YEAR 1 CGPA
 gpa_Sem1  = zeros(numStudents, 1);
 gpa_Sem2  = zeros(numStudents, 1);
 cgpa_Year1 = zeros(numStudents, 1);
 
+% CONTROL STRUCTURE: Bounded FOR loop to iterate through student matrices row-by-row
 for i = 1:numStudents
     % --- Semester 1 ---
     gp1 = convertMarksToGP(marks_Sem1(i, :));
@@ -39,7 +40,7 @@ for i = 1:numStudents
     cgpa_Year1(i) = (qp1 + qp2) / totalCumulativeCU;
 end
 
-% 5. APPEND COLUMNS AND EXPORT UPDATED FILE
+% APPEND COLUMNS AND EXPORT UPDATED FILE
 studentData.gpa_Sem1  = round(gpa_Sem1, 2);
 studentData.gpa_Sem2  = round(gpa_Sem2, 2);
 studentData.CGPA_Year1 = round(cgpa_Year1, 2);
@@ -50,16 +51,13 @@ writetable(studentData, outputFile);
 fprintf('Calculated gpa and CGPA for %d students successfully.\n', numStudents);
 fprintf('Exported updated table to: %s\n\n', outputFile);
 
+% ==================== PERFORMANCE PLOTS ====================
 
-%PERFORMANCE PLOTS
 % --- Plot 1: Standard Line Plot ---
 f1 = figure('Name', 'CGPA_LinePlot');
 plot(cgpa_Year1);
-title('Student CGPA');
-xlabel('Student Index');
-ylabel('CGPA');
-grid on;
-saveas(f1, 'CGPA_LinePlot.png');
+title('Student CGPA'); xlabel('Student Index'); ylabel('CGPA');
+grid on; saveas(f1, 'CGPA_LinePlot.png');
 
 % --- Plot 2: gpa vs CGPA Distribution ('boxplot') ---
 f2 = figure('Name', 'GPA_Boxplot');
@@ -67,8 +65,7 @@ boxplot([gpa_Sem1, gpa_Sem2, cgpa_Year1], ...
     'Labels', {'Sem 1 gpa (19 CU)', 'Sem 2 gpa (21 CU)', 'Year 1 CGPA (40 CU)'});
 title('1. Academic Performance Distribution Across Semesters');
 ylabel('GPA (0.0 - 5.0 Scale)');
-grid on;
-saveas(f2, 'GPA_Boxplot.png');
+grid on; saveas(f2, 'GPA_Boxplot.png');
 
 % --- Plot 3: Semester 1 vs Semester 2 Correlation Scatter ('scatter') ---
 f3 = figure('Name', 'Semester_Scatter');
@@ -76,8 +73,7 @@ scatter(gpa_Sem1, gpa_Sem2, 50, cgpa_Year1, 'filled');
 cb = colorbar; cb.Label.String = 'Year 1 CGPA';
 title('2. Sem 1 gpa vs. Sem 2 gpa (Color Scaled by Overall CGPA)');
 xlabel('Sem 1 gpa (19 CU)'); ylabel('Sem 2 gpa (21 CU)');
-grid on;
-saveas(f3, 'Semester_Scatter.png');
+grid on; saveas(f3, 'Semester_Scatter.png');
 
 % --- Plot 4: Class Mean & Std Dev Across All 11 Courses ('errorbar') ---
 f4 = figure('Name', 'Course_Performance_Errorbar');
@@ -88,8 +84,7 @@ courseNames = {'Eng Math I', 'Circuit Th', 'Comm Skills', 'Comp Apps', 'Eng Mech
 
 errorbar(1:11, allMeans, allCourseStds, 's-', 'LineWidth', 1.5, ...
     'MarkerSize', 7, 'MarkerFaceColor', 'b');
-set(gca, 'XTick', 1:11, 'XTickLabel', courseNames);
-xtickangle(45);
+set(gca, 'XTick', 1:11, 'XTickLabel', courseNames); xtickangle(45);
 title('3. Mean Marks and Standard Deviation Across All 11 Engineering Courses');
 ylabel('Mean Mark (%)'); grid on;
 saveas(f4, 'Course_Means_Errorbar.png');
@@ -97,25 +92,17 @@ saveas(f4, 'Course_Means_Errorbar.png');
 % --- Plot 5: Standard Bar Chart ---
 f5 = figure('Name', 'Mean Mark');
 bar(allMeans);
-set(gca, 'XTick', 1:11, 'XTickLabel', courseNames);
-xtickangle(45);
-title('Average Mark Per Course');
-xlabel('Course Number');
-ylabel('Average Mark (%)');
-grid on;
-saveas(f5, 'Mean_Mark_BarChart.png');
+set(gca, 'XTick', 1:11, 'XTickLabel', courseNames); xtickangle(45);
+title('Average Mark Per Course'); xlabel('Course Number'); ylabel('Average Mark (%)');
+grid on; saveas(f5, 'Mean_Mark_BarChart.png');
 
 % --- Plot 6: Standard Stair Plot ---
 f6 = figure('Name', 'Ranking Student CGPA');
 stairs(sort(cgpa_Year1, 'descend'));
-title('Ranked Class CGPA');
-xlabel('Rank');
-ylabel('CGPA');
-grid on;
-saveas(f6, 'StairPlot.png');
+title('Ranked Class CGPA'); xlabel('Rank'); ylabel('CGPA');
+grid on; saveas(f6, 'StairPlot.png');
 
 disp('Question 2 execution and plotting completed.');
-
 
 % CONVERSION FUNCTION FOR MARKS TO GRADE POINTS
 function gp = convertMarksToGP(marks)
