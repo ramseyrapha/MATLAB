@@ -25,24 +25,32 @@ fprintf('Excel file successfully created for %d leaf types.\n', height(propTable
 if ~exist(outputFolder, 'dir')
     mkdir(outputFolder);
 end
+if ~exist(inputFolder, 'dir')
+    mkdir(inputFolder);
+end
 
 % 2. READ EXCEL DATA AND PROCESS IMAGES
 leavesData = table2struct(propTable); 
 
+% Standard FOR loop cycling through rows sequentially
 for i = 1:length(leavesData)
-    % Grab the filename from our list (e.g., 'img01_banana.png')
-    currentImageName = leavesData(i).originalImage;
+    currentImageName = leavesData(i).originalImage;    % Grab the filename from our list (e.g., 'img01_banana.png')
+    inputPath = fullfile(inputFolder, currentImageName);      % Combine folder name and filename (e.g., 'Leaves/img01_banana.png')
     
-    % Combine folder name and filename to create the path (e.g., 'Leaves/img01_banana.png')
-    inputPath = fullfile(inputFolder, currentImageName);
-    
-    imgOriginal = imread(inputPath);
-    imgGray = rgb2gray(imgOriginal);
-    thresholdValue = graythresh(imgGray);
-    imgBinary = imbinarize(imgGray, thresholdValue);
-    
-    % Direct the processed image into the 'ProcessedImages' folder
-    outputName = fullfile(outputFolder, strrep(currentImageName, '.png', '-processed.png'));
-    imwrite(imgBinary, outputName);
+   % Critical IF safety check to protect execution paths
+    if exist(inputPath, 'file') == 2
+        imgOriginal = imread(inputPath);
+        imgGray = rgb2gray(imgOriginal);
+        thresholdValue = graythresh(imgGray);
+        imgBinary = imbinarize(imgGray, thresholdValue);
+        
+        outputName = fullfile(outputFolder, strrep(currentImageName, '.png', '-processed.png'));
+        imwrite(imgBinary, outputName);
+        fprintf('Processing specimen row %d: successfully saved %s\n', i, currentImageName);
+    else
+        % Warning message for missing image
+        fprintf('Notice for row %d: Place "%s" inside the "%s/" folder to process image matrix.\n', ...
+            i, currentImageName, inputFolder);
+    end
 end
 fprintf('All images successfully processed! Stored in "%s".\n', outputFolder);
